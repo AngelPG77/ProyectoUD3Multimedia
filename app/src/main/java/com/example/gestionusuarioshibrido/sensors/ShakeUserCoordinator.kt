@@ -20,7 +20,7 @@ class ShakeUserCoordinator(
     init {
         // Inicializar el detector y definir el callback
         sensorShakeDetector = SensorShakeDetector(context) {
-            handleShakeEvent()
+            throw UnsupportedOperationException("A completar por el estudiante")
         }
     }
 

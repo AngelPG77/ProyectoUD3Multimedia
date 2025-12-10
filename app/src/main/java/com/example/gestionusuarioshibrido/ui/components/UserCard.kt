@@ -34,28 +34,6 @@ import coil3.request.crossfade
 import com.example.gestionusuarioshibrido.data.local.User
 import com.example.gestionusuarioshibrido.R
 
-
-/**
- * Tarjeta visual que muestra la información principal de un usuario.
- *
- * Este componente presenta:
- * - Fotografía del usuario (con carga remota mediante Coil).
- * - Nombre completo.
- * - Puesto de trabajo.
- * - Email de contacto.
- * - Datos adicionales como nombre de usuario y edad.
- * - Botones de acción para editar y eliminar el usuario.
- *
- * Es un componente reutilizable pensado para listas en `LazyColumn`.
- *
- * @param user Objeto [User] cuyos datos se mostrarán en la tarjeta.
- * @param onEditUser Acción ejecutada al pulsar el botón de editar.
- *                   Recibe como parámetro el `id` del usuario.
- * @param onDeleteUser Acción ejecutada al pulsar el botón de eliminar.
- *                     Recibe el objeto [User] completo.
- * @param modifier Modificador opcional para personalizar el estilo externo del componente.
- */
-
 @Composable
 fun UserCard(
     user: User,
