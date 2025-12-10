@@ -12,6 +12,9 @@ interface AppContainer {
     val userRepository: UserRepository
 }
 class AppDataContainer(private val context: Context) : AppContainer {
+
+    /* A IMPLEMENTAR POR EL ESTUDIANTE */
+
     override val userRepository: UserRepository by lazy {
         throw UnsupportedOperationException("A completar por el estudiante")
     }
