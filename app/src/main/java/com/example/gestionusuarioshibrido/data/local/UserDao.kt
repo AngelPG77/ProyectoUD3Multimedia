@@ -19,6 +19,6 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface UserDao {
 
-   /*   A IMPREMENTAR POR EL ESTUDIANTE  */
+   /*   A IMPLEMENTAR POR EL ESTUDIANTE  */
 
 }

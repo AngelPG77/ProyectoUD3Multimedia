@@ -9,15 +9,7 @@ import retrofit2.http.PUT
 import retrofit2.http.Path
 
 interface MockApiService {
-    @GET("users2")
-    suspend fun getAllUsers(): List<RemoteUser>
 
-    @POST("users2")
-    suspend fun createUser(@Body user: RemoteUser): RemoteUser
+    /*   A IMPLEMENTAR POR EL ESTUDIANTE  */
 
-    @PUT("users2/{id}")
-    suspend fun updateUser(@Path("id") id: String, @Body user: RemoteUser): RemoteUser
-
-    @DELETE("users2/{id}")
-    suspend fun deleteUser(@Path("id") id: String)
 }
