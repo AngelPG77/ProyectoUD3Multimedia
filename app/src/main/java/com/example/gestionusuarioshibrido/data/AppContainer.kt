@@ -11,11 +11,33 @@ import retrofit2.Retrofit
 interface AppContainer {
     val userRepository: UserRepository
 }
+
 class AppDataContainer(private val context: Context) : AppContainer {
 
-    /* A IMPLEMENTAR POR EL ESTUDIANTE */
+    private val baseUrl = "https://6956653bb9b81bad7af2e397.mockapi.io/api/pud3/"
+
+    private val json = Json {
+        ignoreUnknownKeys = true
+        isLenient = true
+        encodeDefaults = true
+        coerceInputValues = true
+    }
+
+    private val retrofit = Retrofit.Builder()
+        .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
+        .baseUrl(baseUrl)
+        .build()
+
+    private val retrofitService: MockApiService by lazy {
+        retrofit.create(MockApiService::class.java)
+    }
+
+    private val database: UserDatabase by lazy {
+        UserDatabase.getDatabase(context)
+    }
 
     override val userRepository: UserRepository by lazy {
-        throw UnsupportedOperationException("A completar por el estudiante")
+        DefaultUserRepository(database.userDao(), retrofitService)
     }
+
 }

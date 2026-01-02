@@ -34,6 +34,17 @@ import coil3.request.crossfade
 import com.example.gestionusuarioshibrido.data.local.User
 import com.example.gestionusuarioshibrido.R
 
+/**
+ * Composable que representa una tarjeta de usuario en la interfaz de usuario.
+ * Este componente se encarga de mostrar la información detrallada del usuario,
+ * su imagen de perfil, nombre, puesto de trabajo, edad, email, nombre de usuario.
+ * También incluye opciones de edición y eliminación.
+ *
+ * @param user Usuario a mostrar.
+ * @param onEditUser Función a ejecutar al hacer clic en el botón de edición, recibe un el ID del usuario al pulsar.
+ * @param onDeleteUser Función a ejecutar al hacer clic en el botón de eliminación, recibe un objeto User completo, y este es el usuario a eliminar.
+ * @param modifier Modificadores para personalizar la apariencia y el comportamiento del componente.
+ */
 @Composable
 fun UserCard(
     user: User,

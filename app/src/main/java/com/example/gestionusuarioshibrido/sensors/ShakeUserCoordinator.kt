@@ -18,24 +18,23 @@ class ShakeUserCoordinator(
     private val sensorShakeDetector: SensorShakeDetector
 
     init {
-        // Inicializar el detector y definir el callback
-        sensorShakeDetector = SensorShakeDetector(context) {
-            throw UnsupportedOperationException("A completar por el estudiante")
-        }
+      sensorShakeDetector = SensorShakeDetector(context) {
+          handleShakeEvent()
+      }
     }
 
     /**
      * Lógica que se ejecuta al detectar una sacudida.
      */
     private fun handleShakeEvent() {
-        throw UnsupportedOperationException("A completar por el estudiante")
+        userViewModel.sync()
     }
 
     fun startListening() {
-        throw UnsupportedOperationException("A completar por el estudiante")
+        sensorShakeDetector.start()
     }
 
     fun stopListening() {
-        throw UnsupportedOperationException("A completar por el estudiante")
+        sensorShakeDetector.stop()
     }
 }

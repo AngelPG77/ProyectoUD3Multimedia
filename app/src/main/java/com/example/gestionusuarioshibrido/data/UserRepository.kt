@@ -1,5 +1,6 @@
 package com.example.gestionusuarioshibrido.data
 
+import android.util.Log
 import com.example.gestionusuarioshibrido.data.local.User
 import com.example.gestionusuarioshibrido.data.local.UserDao
 import com.example.gestionusuarioshibrido.data.local.toRemote
@@ -31,24 +32,41 @@ interface UserRepository {
 }
 
 class DefaultUserRepository(
-    private val local: UserDao,
-    private val remote: MockApiService
+    private val local: UserDao, private val remote: MockApiService
 ) : UserRepository {
 
     override fun getAllUsersStream(): Flow<List<User>> {
-        throw UnsupportedOperationException("A completar por el estudiante")
+        return local.getAllUsers()
     }
 
     override suspend fun insertUser(user: User): RepositoryResult {
-        throw UnsupportedOperationException("A completar por el estudiante")
+        return try {
+            val userToSave = user.copy(pendingSync = true)
+            local.addUser(userToSave)
+            RepositoryResult.Success("Usuario añadido en local")
+        } catch (e: Exception) {
+            RepositoryResult.Error("Error al añadir usuario en local", e)
+        }
     }
 
     override suspend fun updateUser(user: User): RepositoryResult {
-        throw UnsupportedOperationException("A completar por el estudiante")
+        return try {
+            val userToUpdate = user.copy(pendingSync = true)
+            local.updateUser(userToUpdate)
+            RepositoryResult.Success("Usuario actualizado en local")
+        } catch (e: Exception) {
+            RepositoryResult.Error("Error al actualizar usuario en local", e)
+        }
     }
 
     override suspend fun deleteUser(user: User): RepositoryResult {
-        throw UnsupportedOperationException("A completar por el estudiante")
+        return try {
+            val userToDelete = user.copy(pendingDelete = true, pendingSync = true)
+            local.updateUser(userToDelete)
+            RepositoryResult.Success("Usuario marcado para borrado en local")
+        } catch (e: Exception) {
+            RepositoryResult.Error("Error al marcar usuario para borrado en local", e)
+        }
     }
 
     /**
@@ -88,7 +106,38 @@ class DefaultUserRepository(
      */
 
     override suspend fun uploadPendingChanges(): RepositoryResult {
-        throw UnsupportedOperationException("A completar por el estudiante")
+        return try {
+            var updatedCount = 0
+            var deletedCount = 0
+
+            val pendingUpdates = local.getUsersPendingSync().filter { !it.pendingDelete }
+            pendingUpdates.forEach { user ->
+                val remoteDto = user.toRemote()
+
+                if (user.id.startsWith("local_")) {
+                    val responseDto = remote.createUser(remoteDto)
+                    local.deleteUser(user)
+                    local.addUser(responseDto.toLocal())
+                } else {
+                    remote.updateUser(user.id, remoteDto)
+                    local.updateUser(user.copy(pendingSync = false))
+                }
+                updatedCount++
+            }
+
+            val pendingDeletes = local.getUsersPendingDelete()
+            pendingDeletes.forEach { user ->
+                if (!user.id.startsWith("local_")) {
+                    remote.deleteUser(user.id)
+                }
+                local.deleteUser(user)
+                deletedCount++
+            }
+
+            RepositoryResult.Success("Sincronización completada: $updatedCount subidos, $deletedCount borrados")
+        } catch (e: Exception) {
+            RepositoryResult.Error("Error en la sincronización: ${e.message}", e)
+        }
     }
 
     /**
@@ -134,6 +183,22 @@ class DefaultUserRepository(
      * @return [RepositoryResult] con el estado de la operación de sincronización REMOTE → LOCAL.
      */
     override suspend fun syncFromServer(): RepositoryResult {
-        throw UnsupportedOperationException("A completar por el estudiante")
+        return try {
+            val localIds = local.getAllIds()
+            val remoteUsersDto = remote.getAllUsers()
+
+            var insertedCount = 0
+            var updatedCount = 0
+
+            remoteUsersDto.forEach { dto ->
+                if (localIds.contains(dto.id)) updatedCount++ else insertedCount++
+                val userLocal = dto.toLocal()
+                local.addUser(userLocal)
+            }
+
+            RepositoryResult.Success("Descarga finalizada: $insertedCount nuevos, $updatedCount actualizados")
+        } catch (e: Exception) {
+            RepositoryResult.Error("Error en la descarga: ${e.message}", e)
+        }
     }
 }

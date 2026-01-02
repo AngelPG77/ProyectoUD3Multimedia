@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
@@ -54,15 +56,16 @@ fun UserFormScreen(
 ) {
     Scaffold(
         topBar = {
-            TopAppBar(title = {
-                Column() {
-                    Text(
-                        if (userId == null) "Crear Usuario" else "Modificar Usuario",
-                    )
-                }
-            },
+            TopAppBar(
+                title = {
+                    Column() {
+                        Text(
+                            if (userId == null) "Crear Usuario" else "Modificar Usuario",
+                        )
+                    }
+                },
                 navigationIcon = {
-                    IconButton(onClick = {onBack()}) {
+                    IconButton(onClick = { onBack() }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver")
                     }
                 })
@@ -95,5 +98,95 @@ fun UserEditScreen(
     onDone: (User) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    throw UnsupportedOperationException("A completar por el estudiante")
+    val userToEdit = users.find { it.id == userId }
+
+    var firstName by remember { mutableStateOf(userToEdit?.firstName ?: "") }
+    var lastName by remember { mutableStateOf(userToEdit?.lastName ?: "") }
+    var email by remember { mutableStateOf(userToEdit?.email ?: "") }
+    var userName by remember { mutableStateOf(userToEdit?.userName ?: "") }
+    var age by remember { mutableStateOf(userToEdit?.age?.toString() ?: "") }
+    var positionTitle by remember { mutableStateOf(userToEdit?.positionTitle ?: "") }
+    var image by remember { mutableStateOf(userToEdit?.imagen ?: "") }
+
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+            .verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        OutlinedTextField(
+            value = firstName,
+            onValueChange = { firstName = it },
+            label = { Text("Nombre") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        OutlinedTextField(
+            value = lastName,
+            onValueChange = { lastName = it },
+            label = { Text("Apellidos") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        OutlinedTextField(
+            value = email,
+            onValueChange = { email = it },
+            label = { Text("Email") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        OutlinedTextField(
+            value = userName,
+            onValueChange = { userName = it },
+            label = { Text("Nombre de Usuario") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        OutlinedTextField(
+            value = age,
+            onValueChange = { if (it.all { char -> char.isDigit() }) age = it },
+            label = { Text("Edad") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        OutlinedTextField(
+            value = positionTitle,
+            onValueChange = { positionTitle = it },
+            label = { Text("Puesto") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        OutlinedTextField(
+            value = image,
+            onValueChange = { image = it },
+            label = { Text("Imagen de perfil") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
+            modifier = Modifier.fillMaxWidth(),
+            onClick = {
+                val finalUser = User(
+                    id = userId ?: "local_${System.nanoTime()}",
+                    firstName = firstName,
+                    lastName = lastName,
+                    email = email,
+                    userName = userName,
+                    age = age.toIntOrNull() ?: 0,
+                    positionTitle = positionTitle,
+                    imagen = image,
+                    pendingSync = true,
+                    pendingDelete = false
+                )
+                onDone(finalUser)
+            },
+            enabled = firstName.isNotBlank() && lastName.isNotBlank() && email.isNotBlank() && userName.isNotBlank() && age.isNotBlank() && positionTitle.isNotBlank()
+        ) {
+            Text(if (userId == null) "Crear Usuario" else "Guardar Cambios")
+        }
+    }
 }

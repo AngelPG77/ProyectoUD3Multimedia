@@ -24,18 +24,23 @@ class SensorShakeDetector(
     // Último tiempo registrado para evitar múltiples eventos seguidos
     private var lastShakeTime = 0L
 
+    private val shakeThreshold = 2f
+    private val shakeCooldown = 1000L
+
     /**
      * Registra el listener del acelerómetro.
      */
     fun start() {
-        throw UnsupportedOperationException("A completar por el estudiante")
+        accelerometer?.let { sensor ->
+            sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_UI)
+        }
     }
 
     /**
      * Detiene el listener del acelerómetro.
      */
     fun stop() {
-        throw UnsupportedOperationException("A completar por el estudiante")
+        sensorManager.unregisterListener(this)
     }
 
     /**
@@ -59,10 +64,30 @@ class SensorShakeDetector(
      */
 
     override fun onSensorChanged(event: SensorEvent?) {
-        throw UnsupportedOperationException("A completar por el estudiante")
+        if (event == null) return
+
+        val x = event.values[0]
+        val y = event.values[1]
+        val z = event.values[2]
+
+        val gX = x / SensorManager.GRAVITY_EARTH
+        val gY = y / SensorManager.GRAVITY_EARTH
+        val gZ = z / SensorManager.GRAVITY_EARTH
+
+        val gForce = sqrt(gX * gX + gY * gY + gZ * gZ)
+
+        if (gForce > shakeThreshold) {
+            val now = System.currentTimeMillis()
+
+            if (now - lastShakeTime >= shakeCooldown) {
+                lastShakeTime = now
+                onShake()
+            }
+        }
+
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
-        throw UnsupportedOperationException("A completar por el estudiante")
+        // No es necesario implementar esta función en este caso ya que no debería cambiar la precision del sensor
     }
 }

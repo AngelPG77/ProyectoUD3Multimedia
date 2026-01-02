@@ -36,6 +36,7 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
      * (mensajes Toast, SnackBars, etc.).
      */
     private val _events = Channel<String>()
+
     /**
      * Flujo público de eventos que la UI observará.
      */
@@ -67,7 +68,8 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
      * @param user Usuario a insertar.
      */
     fun insertUser(user: User) = viewModelScope.launch {
-        throw UnsupportedOperationException("A completar por el estudiante")
+        val result = userRepository.insertUser(user)
+        processResult(result)
     }
 
     /**
@@ -76,7 +78,8 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
      * @param user Usuario actualizado.
      */
     fun updateUser(user: User) = viewModelScope.launch {
-        throw UnsupportedOperationException("A completar por el estudiante")
+        val result = userRepository.updateUser(user)
+        processResult(result)
     }
 
     /**
@@ -85,7 +88,8 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
      * @param user Usuario a eliminar.
      */
     fun deleteUser(user: User) = viewModelScope.launch {
-        throw UnsupportedOperationException("A completar por el estudiante")
+        val result = userRepository.deleteUser(user)
+        processResult(result)
     }
 
     /**
@@ -95,7 +99,10 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
      * @param context Contexto necesario para registrar los sensores.
      */
     fun setupShakeListener(context: Context) {
-        throw UnsupportedOperationException("A completar por el estudiante")
+        if (shakeUserCoordinator == null) {
+            shakeUserCoordinator = ShakeUserCoordinator(context, this)
+            shakeUserCoordinator?.startListening()
+        }
     }
 
     /**
@@ -103,7 +110,9 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
      */
 
     override fun onCleared() {
-        throw UnsupportedOperationException("A completar por el estudiante")
+        super.onCleared()
+        shakeUserCoordinator?.stopListening()
+        shakeUserCoordinator = null
     }
 
 
@@ -113,7 +122,28 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
      */
 
     fun addTestUser() = viewModelScope.launch {
-        throw UnsupportedOperationException("A completar por el estudiante")
+
+        val allTestUsers = testUsers
+
+        if (usersAddedCount < allTestUsers.size) {
+
+            val rawUser = allTestUsers[usersAddedCount]
+
+            val userToInsert = rawUser.copy(
+                id = "local_${System.nanoTime()}",
+                pendingSync = true,
+                pendingDelete = false
+            )
+
+            val result = userRepository.insertUser(userToInsert)
+            processResult(result)
+
+            usersAddedCount++
+            val remaining = allTestUsers.size - usersAddedCount
+            _events.send("Test user añadido (${rawUser.firstName}). Quedan $remaining.")
+        } else {
+            _events.send("No hay más usuarios de test disponibles.")
+        }
     }
 
     /**
@@ -125,7 +155,13 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
      * Tras cada fase, procesa el resultado y lo comunica a la UI.
      */
     fun sync() = viewModelScope.launch {
-        throw UnsupportedOperationException("A completar por el estudiante")
+        _events.send("Iniciando sincronización...")
+
+        val uploadResult = userRepository.uploadPendingChanges()
+        processResult(uploadResult)
+
+        val downloadResult = userRepository.syncFromServer()
+        processResult(downloadResult)
     }
 
     /**

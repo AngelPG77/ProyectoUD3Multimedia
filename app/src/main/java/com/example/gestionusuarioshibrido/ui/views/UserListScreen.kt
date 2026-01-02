@@ -26,6 +26,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import com.example.gestionusuarioshibrido.data.local.User
 import com.example.gestionusuarioshibrido.ui.components.UserCard
 
@@ -61,5 +62,48 @@ fun UserListScreen(
     onAddTestUser: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    throw UnsupportedOperationException("A completar por el estudiante")
+    Scaffold(
+        modifier = modifier.fillMaxSize(),
+        topBar = {
+            TopAppBar(
+                title = { Text("Gestión de Usuarios", fontWeight = FontWeight.Bold) },
+                actions = {
+                    IconButton(onClick = onAddTestUser) {
+                        Icon(
+                            imageVector = Icons.Rounded.PersonAdd,
+                            contentDescription = "Añadir Usuarios de prueba"
+                        )
+                    }
+                    IconButton(onClick = onSync) {
+                        Icon(
+                            imageVector = Icons.Rounded.Sync,
+                            contentDescription = "Sincronizar con Servidor"
+                        )
+                    }
+                }
+            )
+        },
+        floatingActionButton = {
+            FloatingActionButton(onClick = onAddUser) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "Nuevo Usuario"
+                )
+            }
+        }
+    ) { paddingValues ->
+        LazyColumn(
+            modifier = Modifier
+                .padding(paddingValues)
+                .fillMaxSize()
+        ) {
+            items(users, key = { it.id }) { user ->
+                UserCard(
+                    user = user,
+                    onEditUser = onEditUser,
+                    onDeleteUser = onDeleteUser
+                )
+            }
+        }
+    }
 }

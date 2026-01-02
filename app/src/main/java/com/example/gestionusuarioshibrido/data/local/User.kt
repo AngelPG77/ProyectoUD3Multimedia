@@ -3,6 +3,7 @@ package com.example.gestionusuarioshibrido.data.local
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.example.gestionusuarioshibrido.data.remote.RemoteUser
+import kotlinx.serialization.Serializable
 
 /**
  * Representa un usuario almacenado en la base de datos local.
@@ -24,13 +25,13 @@ import com.example.gestionusuarioshibrido.data.remote.RemoteUser
 @Entity(tableName = "users")
 data class User(
     @PrimaryKey val id: String,
-    val firstName: String,
-    val lastName: String,
-    val email: String,
-    val age: Int,
-    val userName: String,
-    val positionTitle: String,
-    val imagen: String,
+    val firstName: String = "",
+    val lastName: String = "",
+    val email: String = "",
+    val age: Int = 0,
+    val userName: String = "",
+    val positionTitle: String = "",
+    val imagen: String = "",
 
     // Sincronización
     val pendingSync: Boolean = false,

@@ -6,13 +6,13 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class RemoteUser(
     val id: String? = null,
-    val firstName: String,
-    val lastName: String,
-    val email: String,
-    val age: Int,
-    val userName: String,
-    val positionTitle: String,
-    val imagen: String
+    val firstName: String = "",
+    val lastName: String = "",
+    val email: String = "",
+    val age: Int = 0,
+    val userName: String = "",
+    val positionTitle: String = "",
+    val imagen: String = ""
 )
 
 

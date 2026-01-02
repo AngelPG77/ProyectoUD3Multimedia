@@ -82,14 +82,39 @@ fun AppNavigation(modifier: Modifier = Modifier) {
             // Pantalla: Lista de usuarios
             // ---------------------------
             composable(route = "user_list") {
-                throw UnsupportedOperationException("A completar por el estudiante")
+                UserListScreen(
+                    users = users,
+                    onAddUser = {
+                        navController.navigate("user_form")
+                    },
+                    onEditUser = { userId ->
+                        navController.navigate("user_form/$userId")
+                    },
+                    onDeleteUser = { user ->
+                        userViewModel.deleteUser(user)
+                    },
+                    onSync = {
+                        userViewModel.sync()
+                    },
+                    onAddTestUser = {
+                        userViewModel.addTestUser()
+                    }
+                )
             }
 
             // ----------------------------------------
             // Pantalla: Formulario para crear usuario
             // ----------------------------------------
             composable(route = "user_form") {
-                throw UnsupportedOperationException("A completar por el estudiante")
+                UserFormScreen(
+                    users = users,
+                    userId = null,
+                    onBack = { navController.popBackStack() },
+                    onDone = { user ->
+                        userViewModel.insertUser(user)
+                        navController.popBackStack()
+                    }
+                )
             }
 
             // ----------------------------------------
@@ -100,7 +125,20 @@ fun AppNavigation(modifier: Modifier = Modifier) {
                 arguments = listOf(navArgument("id") { type = NavType.StringType })
             ) { backStackEntry ->
                 val id = backStackEntry.arguments?.getString("id")
-                throw UnsupportedOperationException("A completar por el estudiante")
+
+                UserFormScreen(
+                    users = users,
+                    userId = id,
+                    onBack = { navController.popBackStack() },
+                    onDone = { user ->
+                        if (id == null) {
+                            userViewModel.insertUser(user)
+                        } else {
+                            userViewModel.updateUser(user)
+                        }
+                        navController.popBackStack()
+                    }
+                )
             }
         }
     }
